@@ -28,14 +28,18 @@ class Dataset
   def self.get(term)
     self.pruned_by(term)
   end
-  
+
   def self.export(term)
     csv = CSV.open(File.dirname(__FILE__)+"/../datasets/#{term.gsub("#", "")}.tsv", "w")
     first = true
     self.get(term).each do |r|
-      csv << keys = r.keys if first
-      first = false
-      csv << r.values
+      if first
+        csv << keys = (r.keys|[:permalink])
+        first = false
+      end
+      vals = r.values
+      vals << "http://www.twitter.com/#{r.screen_name}/status/#{r.twitter_id}"
+      csv << vals
     end
     puts "Stored in #{File.dirname(__FILE__)+"/../datasets/#{term.gsub("#", "")}.tsv"}!"
   end
